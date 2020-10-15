@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { userActions } from '../_actions';
+
+
+window.localStorage.setItem('users', JSON.stringify([]))
+
 
 function RegisterPage() {
     const [user, setUser] = useState({
@@ -11,15 +14,22 @@ function RegisterPage() {
         username: '',
         password: ''
     });
+    const history = useHistory();
     const [submitted, setSubmitted] = useState(false);
-    const registering = useSelector(state => state.registration.registering);
-    const dispatch = useDispatch();
+    const [msg, setMsg] = useState('');
+    const [err, errMsg] = useState('');
 
-    // reset login status
+
     useEffect(() => {
-        dispatch(userActions.logout());
-    }, []);
-
+        const timer = setTimeout(() => {
+            setMsg('');
+            errMsg('');
+        }, 1000);
+        return () => {
+           
+            clearTimeout(timer);
+        }
+      }, []);
     function handleChange(e) {
         const { name, value } = e.target;
         setUser(user => ({ ...user, [name]: value }));
@@ -30,14 +40,30 @@ function RegisterPage() {
 
         setSubmitted(true);
         if (user.firstName && user.lastName && user.username && user.password) {
-            dispatch(userActions.register(user));
+            let users = JSON.parse(window.localStorage.getItem('users'));
+            if(!users.filter(obj => obj.username == user.username).length){
+                users.push(user);
+                window.localStorage.removeItem('users');
+                window.localStorage.setItem("users", JSON.stringify(users));
+                setMsg('User registered successfully');
+                setTimeout(() =>history.push('/login'), 2000);
+            } else {
+                errMsg('User already exist');
+            }
+            
         }
     }
 
     return (
         <div className="col-lg-8 offset-lg-2">
-            <h2>Register</h2>
+            <h2>User Register</h2>
             <form name="form" onSubmit={handleSubmit}>
+            {msg.length ? <div className="alert alert-success" role="alert">
+                {msg}
+                </div> : null}
+                {err.length ? <div className="alert alert-danger" role="alert">
+                {err}
+                </div> : null}
                 <div className="form-group">
                     <label>First Name</label>
                     <input type="text" name="firstName" value={user.firstName} onChange={handleChange} className={'form-control' + (submitted && !user.firstName ? ' is-invalid' : '')} />
@@ -68,7 +94,6 @@ function RegisterPage() {
                 </div>
                 <div className="form-group">
                     <button className="btn btn-primary">
-                        {registering && <span className="spinner-border spinner-border-sm mr-1"></span>}
                         Register
                     </button>
                     <Link to="/login" className="btn btn-link">Cancel</Link>
