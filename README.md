@@ -1,5 +1,16 @@
-# react-hooks-redux-registration-login-example
+Breaking Bad App
+----------------------
+Display all the characters of breaking in the form of table by selecting characters or episodes
 
-React Hooks + Redux - User Registration and Login Tutorial & Example
+Tested scenerios
+-----------------------
 
-For documentation and live demo see https://jasonwatmore.com/post/2020/03/02/react-hooks-redux-user-registration-and-login-tutorial-example
+User without registering logging in - alert error
+
+User registered logging in - successful route to home
+
+User logging off - successful with clearing local storage
+
+User again logging in - successful 
+
+Directly routing to home page without logging in - redirect to login page
